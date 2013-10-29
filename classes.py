@@ -36,6 +36,7 @@ class Sprite():
     def set(self, piece):
         assert piece in range(len(self.paths)), "piece number out of range!"
         self.selected = piece
+        self.update()
 
     def getCenterpoint(self, position):
         x = self.dimensions[0] / 2 + position[0]
@@ -69,3 +70,42 @@ class PackagedSprite(Sprite):
         self.selected = 0
         self.update()
 
+
+class Cardinal():
+
+    directions = ['north', 'east', 'south', 'west']
+    directionAbbreviations = ['n', 'e', 's', 'w']
+
+    def __init__(self, direction, north=0):
+        if direction in (0, 1, 2, 3):
+            self.dir = (direction - north) % 4
+        else:
+            try:
+                direction = direction.lower()
+            except AttributeError:
+                raise TypeError('directional input must be an int or a str')
+            if direction in directions:
+                self.dir = directions.index(direction)
+            elif direction in directionAbbreviations:
+                self.dir = directions.index(direction)
+            else:
+                raise NameError('not a direction')
+
+    def __str__(self):
+        return self.directions[self.dir].capitalize()
+
+    def __repr__(self):
+        return "<Cardinal object holding direction {} at 0x{:0x}>".format(
+                self.directions[self.dir].capitalize(),
+                id(self))
+
+    def __add__(self, other):
+        assert type(self) is type(other), 'can only add Cardinal directions'
+        return Cardinal((self.dir + other.dir) % 4)
+
+    def __sub__(self, other):
+        assert type(self) is type(other), 'can only add Cardinal directions'
+        return self.dir - other.dir
+    
+    def __neg__(self):
+        return Cardinal((self.dir + 2) % 4)
