@@ -16,7 +16,7 @@ black = pygame.Color(0, 0, 0)
 mousex, mousey = 1, 1
 pygame.mouse.set_visible(False)
 
-char = PackagedSprite('rachelSmall', 4)
+char = PackagedSprite('rachel', 4)
 pie = PackagedSprite('applePie', 2)
 floorTile = PackagedSprite('floor', 1)
 
