@@ -121,7 +121,11 @@ while True:
         piePos = newPos(pie)
         pies += 1
         countText = buildCount(pies)
-        charSize = math.trunc(charSize * 1.03)
+        if pies > 35:
+            charSizeMod = 1.05
+        else:
+            charSizeMod = 1.03
+        charSize = math.trunc(charSize * charSizeMod)
         fakePie = False
 
     if pies > 49:
