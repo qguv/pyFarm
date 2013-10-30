@@ -119,7 +119,7 @@ class Point(tuple):
 
     def __add__(self, other):
         x1, y1 = self
-        if type(other) == type(int()):
+        if type(other) in (type(int()), type(float())):
             n = other
             return Point(x1 + n, y1 + n)
         elif len(other) == 2:
@@ -130,7 +130,7 @@ class Point(tuple):
 
     def __sub__(self, other):
         x1, y1 = self
-        if type(other) == type(int()):
+        if type(other) in (type(int()), type(float())):
             n = other
             return Point(x1 - n, y1 - n)
         elif len(other) == 2:
@@ -141,7 +141,7 @@ class Point(tuple):
 
     def __mul__(self, other):
         x1, y1 = self
-        if type(other) == type(int()):
+        if type(other) in (type(int()), type(float())):
             n = other
             return Point(x1 * n, y1 * n)
         elif len(other) == 2:
@@ -152,7 +152,7 @@ class Point(tuple):
 
     def __truediv__(self, other):
         x1, y1 = self
-        if type(other) == type(int()):
+        if type(other) in (type(int()), type(float())):
             n = other
             return Point(x1 / n, y1 / n)
         elif len(other) == 2:
@@ -161,9 +161,12 @@ class Point(tuple):
         else:
             raise TypeError("what are you even doing? ints, tuples, or Points!")
 
-    def __floordiv__(self, other):
-        x1, y1 = self.__truediv__(other)
+    def __trunc__(self):
+        x1, y1 = self
         return Point(int(x1), int(y1))
+
+    def __floordiv__(self, other):
+        return self.__truediv__(other).__trunc__()
 
     def __rmul__(self, other):
         return self.__mul__(self, other)

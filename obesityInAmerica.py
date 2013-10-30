@@ -52,22 +52,82 @@ floorTile = PackagedSprite('floor', 1)
 
 # Positions and Counters
 pies = 0
+fakePie = False
+charSize = char.dimensions
 mousePos = Point(1, 1)
 piePos = newPos(pie)
 charPos = mousePos - char.dimensions / 2
+
+# Messages
+font = pygame.font.Font('fonts/DroidSans.ttf', 36)
+
+def buildCount(count):
+    if count == 0:
+        msg = 'no pies'
+    elif count == 1:
+        msg = 'one pie'
+    else:
+        msg = str(count) + ' pies'
+    return font.render(msg + '!', 1, (200, 200, 200))
+
+## Pie Count
+countText = buildCount(pies)
+countTextRectobj = countText.get_rect()
+countTextRectobj.topleft = (10, 20)
+screen.blit(countText, countTextRectobj)
+
+## Warning text
+warningTextYellow = font.render("do not eat more pie!", 1, (200, 200, 0))
+warningTextMagenta = font.render("do not eat more pie!", 1, (200, 0, 200))
+warningTextRectobj = warningTextYellow.get_rect()
+warningTextRectobj.topleft = (300, 20)
+
+## Obesity Text
+obesityRed = font.render("obesity in America!", 1, (255, 50, 50))
+obesityWhite = font.render("obesity in America!", 1, (255, 255, 255))
+obesityBlue = font.render("obesity in America!", 1, (100, 100, 255))
+obesityRectobj = obesityRed.get_rect()
+obesityRectobj.topleft = (300, 20)
+
+obesityDeath = font.render("obesity in America!", 1, (255, 50, 50))
+obesityDeathRectobj = obesityDeath.get_rect()
+obesityDeathRectobj.topleft = midScreen
 
 buildBackground(floorTile, background, dimensions)
 
 while True:
     screen.fill(black)
     screen.blit(background, topLeft)
+    screen.blit(countText, countTextRectobj)
+
+    if pies > 25:
+        if pies > 35:
+            if pies % 3 == 2:
+                screen.blit(obesityRed, obesityRectobj)
+            elif pies % 3 == 0:
+                screen.blit(obesityWhite, obesityRectobj)
+            else:
+                screen.blit(obesityBlue, obesityRectobj)
+        else:
+            if pies % 2 == 1:
+                screen.blit(warningTextYellow, warningTextRectobj)
+            else:
+                screen.blit(warningTextMagenta, warningTextRectobj)
 
     screen.blit(pie.pygameObject, piePos)
-    screen.blit(char.pygameObject, charPos)
+    screen.blit(pygame.transform.scale(char.pygameObject, charSize), charPos)
 
-    if charPos.distance(piePos) < 70:
+    if charPos.distance(piePos) < 70 or fakePie:
         piePos = newPos(pie)
         pies += 1
+        countText = buildCount(pies)
+        charSize = math.trunc(charSize * 1.03)
+        fakePie = False
+
+    if pies > 49:
+        screen.fill(black)
+        screen.blit(obesityDeath, obesityDeathRectobj)
+        pygame.mouse.set_visible(True)
 
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -81,7 +141,7 @@ while True:
             char.set((char.selected + turn) % 4)
         elif event.type == MOUSEBUTTONUP:
             if event.button in ( 2, 3 ):
-                pass
+                fakePie = True
                 
     pygame.display.update()
     fpsClock.tick(30)
