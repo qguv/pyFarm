@@ -35,3 +35,13 @@ def directionOfAngle(degs=None, rads=None, north=0):
         direction = Cardinal(1, north=north)
     return direction
 
+def centerpoint(position, size):
+    x = size[0] / 2 + position[0]
+    y = size[1] / 2 + position[1]
+    return (x, y)
+
+def endpoint(position, size):
+    x = size[0] + position[0]
+    y = size[1] + position[1]
+    return (x, y)
+

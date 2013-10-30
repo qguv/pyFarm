@@ -13,7 +13,7 @@ dimensions = (1024, 768)
 screen = pygame.display.set_mode(dimensions)
 background = pygame.Surface(dimensions)
 black = pygame.Color(0, 0, 0)
-mousex, mousey = 1, 1
+mousex, mousey = dimensions
 pygame.mouse.set_visible(False)
 
 char = PackagedSprite('rachel', 4)
@@ -39,35 +39,53 @@ def buildBackground(tile, background, dimensions):
 piePos = newPos(pie)
 pies = 0
 
-angleToPie = angle(char.getCenterpoint((mousex, mousey)), pie.getCenterpoint(piePos))
+charSize = char.dimensions
+
+angleToPie = angle(centerpoint((mousex, mousey), charSize), pie.getCenterpoint(piePos))
 turn = Cardinal(char.selected, north=2) - directionOfAngle(degs=angleToPie)
 char.set((char.selected + turn) % 4)
 
 buildBackground(floorTile, background, dimensions)
 
 font = pygame.font.Font('fonts/DroidSans.ttf', 36)
-text = font.render("no pies!", 1, (200, 200, 200))
-textRectobj = text.get_rect()
-textRectobj.topleft = (10, 20)
-screen.blit(text, textRectobj)
+countText = font.render("no pies!", 1, (200, 200, 200))
+countTextRectobj = countText.get_rect()
+countTextRectobj.topleft = (10, 20)
+screen.blit(countText, countTextRectobj)
+
+warningText1 = font.render("do not eat more pie!", 1, (200, 200, 0))
+warningTextRectobj = warningText1.get_rect()
+warningTextRectobj.topleft = (300, 20)
+
+warningText2 = font.render("do not eat more pie!", 1, (200, 0, 200))
 
 while True:
     screen.fill(black)
     screen.blit(background, (0, 0))
 
-    screen.blit(text, textRectobj)
+    screen.blit(countText, countTextRectobj)
 
-    screen.blit(char.pygameObject, (mousex, mousey))
+    if pies > 50:
+        if pies % 2 == 0:
+            screen.blit(warningText1, warningTextRectobj)
+        else:
+            screen.blit(warningText2, warningTextRectobj)
+
     screen.blit(pie.pygameObject, piePos)
+    charMid = centerpoint((mousex, mousey), charSize)
+    screen.blit(
+            pygame.transform.scale(char.pygameObject, (charSize)),
+            (mousex, mousey))
 
-    if distance((mousex, mousey), pie.getCenterpoint(piePos)) < 75:
+    if distance(centerpoint((mousex, mousey), charSize), pie.getCenterpoint(piePos)) < 75:
         pies += 1
         if pies == 1:
-            text = font.render("1 pie!", 1, (255, 255, 255))
+            countText = font.render("1 pie!", 1, (255, 255, 255))
         else:
-            text = font.render(str(pies) + " pies!", 1, (255, 255, 255))
+            countText = font.render(str(pies) + " pies!", 1, (255, 255, 255))
         pie.next()
         piePos = newPos(pie)
+        charSize = tuple( int(x * 1.03) for x in charSize )
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
@@ -75,7 +93,6 @@ while True:
         elif event.type == MOUSEMOTION:
             mousex, mousey = event.pos
             angleToPie = angle((mousex, mousey), pie.getCenterpoint(piePos))
-            print(angleToPie) #DEBUG
             turn = Cardinal(char.selected, north=2) - directionOfAngle(degs=angleToPie)
             char.set((char.selected + turn) % 4)
         elif event.type == MOUSEBUTTONUP:
