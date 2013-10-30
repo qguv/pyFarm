@@ -24,7 +24,7 @@ class Sprite():
     def update(self):
         self.path = self.paths[self.selected]
         self.pygameObject = pygame.image.load(self.path)
-        self.dimensions = Point(self.pygameObject.get_size())
+        self.dimensions = self.pygameObject.get_size()
 
     def next(self):
         if self.selected + 1 < len(self.paths):
@@ -71,117 +71,63 @@ class PackagedSprite(Sprite):
         self.update()
 
 
-class Cardinal(int):
+class Cardinal():
 
     directions = ['north', 'east', 'south', 'west']
     directionAbbreviations = ['n', 'e', 's', 'w']
 
-    def __new__(self, direction, north=0):
+    def __init__(self, direction, north=0):
         if direction in (0, 1, 2, 3):
-            return int.__new__(Cardinal, (direction - north) % 4)
+            self.dir = (direction - north) % 4
         else:
             try:
                 direction = direction.lower()
             except AttributeError:
                 raise TypeError('directional input must be an int or a str')
             if direction in directions:
-                return int.__new__(Cardinal, directions.index(direction))
+                self.dir = directions.index(direction)
             elif direction in directionAbbreviations:
-                return int.__new__(Cardinal, directionsAbbreviations.index(direction))
+                self.dir = directions.index(direction)
             else:
                 raise NameError('not a direction')
 
-    def __str__(self, abbreviate=False):
-        if abbreviate:
-            return self.directionAbbreviations[self].capitalize()
-        else:
-            return self.directions[self].capitalize()
+    def __str__(self):
+        return self.directions[self.dir].capitalize()
 
     def __repr__(self):
         return "<Cardinal object holding direction {} at 0x{:0x}>".format(
-                self.directions[self].capitalize(),
+                self.directions[self.dir].capitalize(),
                 id(self))
 
     def __add__(self, other):
-        return Cardinal((int(self) + int(other)) % 4)
-
-    def __neg__(self):
-        return Cardinal((self + 2) % 4)
-
-class Point(tuple):
-
-    def __new__(self, *args):
-        if len(args) == 1:
-            return tuple.__new__(Point, *args)
-        elif len(args) == 2:
-            x, y = args
-            return tuple.__new__(Point, (x, y))
-
-    def __add__(self, other):
-        x1, y1 = self
-        if type(other) == type(int()):
-            n = other
-            return Point(x1 + n, y1 + n)
-        elif len(other) == 2:
-            x2, y2 = other
-            return Point(x1 + x2, y1 + y2)
-        else:
-            raise TypeError("what are you even doing? ints, tuples, or Points!")
+        assert type(self) is type(other), 'can only add Cardinal directions'
+        return Cardinal((self.dir + other.dir) % 4)
 
     def __sub__(self, other):
-        x1, y1 = self
-        if type(other) == type(int()):
-            n = other
-            return Point(x1 - n, y1 - n)
-        elif len(other) == 2:
-            x2, y2 = other
-            return Point(x1 - x2, y1 - y2)
+        assert type(self) is type(other), 'can only add Cardinal directions'
+        return self.dir - other.dir
+    
+    def __neg__(self):
+        return Cardinal((self.dir + 2) % 4)
+
+class Coords():
+
+    def __init__(self, *args):
+        if len(args) > 1:
+            self.data = args
         else:
-            raise TypeError("what are you even doing? ints, tuples, or Points!")
+            self.data = tuple(args[0])
+    def __add__(self, other):
+        assert len(self) == len(other)
+        return Coords([ x + y for x, y in zip(self, other) ])
 
-    def __mul__(self, other):
-        x1, y1 = self
-        if type(other) == type(int()):
-            n = other
-            return Point(x1 * n, y1 * n)
-        elif len(other) == 2:
-            x2, y2 = other
-            return Point(x1 * x2, y1 * y2)
-        else:
-            raise TypeError("what are you even doing? ints, tuples, or Points!")
+    def __sub__(self, other):
+        assert len(self) == len(other)
+        return Coords([ x - y for x, y in zip(self, other) ])
 
-    def __truediv__(self, other):
-        x1, y1 = self
-        if type(other) == type(int()):
-            n = other
-            return Point(x1 / n, y1 / n)
-        elif len(other) == 2:
-            x2, y2 = other
-            return Point(x1 / x2, y1 / y2)
-        else:
-            raise TypeError("what are you even doing? ints, tuples, or Points!")
+    def __mul__(self, n):
+        return Coords([ n * x for x in self ])
 
-    def __floordiv__(self, other):
-        x1, y1 = self.__truediv__(other)
-        return Point(int(x1), int(y1))
-
-    def __rmul__(self, other):
-        return self.__mul__(self, other)
-
-    def angle(self, other):
-        from math import atan2, pi, degrees
-        x1, y1 = self
-        x2, y2 = other
-        dx = x2 - x1
-        dy = y2 - y1
-        rads = atan2(-dy, dx)
-        rads %= 2 * pi
-        deg = degrees(rads)
-        return deg
-
-    def distance(self, other):
-        from math import sqrt
-        x1, y1 = self
-        x2, y2 = other
-        return sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+    def get(self):
+        return self.data
 

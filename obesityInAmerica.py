@@ -1,10 +1,10 @@
 #/usr/bin/env python3
 import pygame, sys
 from pygame.locals import *
-from classes import *
+from classesOld import *
 from random import randint
 import math
-from formulae import *
+from formulaeOld import *
 
 pygame.init()
 fpsClock = pygame.time.Clock()
@@ -59,23 +59,39 @@ warningTextRectobj.topleft = (300, 20)
 
 warningText2 = font.render("do not eat more pie!", 1, (200, 0, 200))
 
+warningText3 = font.render("obesity in America!", 1, (255, 50, 50))
+warningText4 = font.render("obesity in America!", 1, (255, 255, 255))
+warningText5 = font.render("obesity in America!", 1, (100, 100, 255))
+
 while True:
     screen.fill(black)
-    screen.blit(background, (0, 0))
+    if pies < 50:
+        screen.blit(background, (0, 0))
 
-    screen.blit(countText, countTextRectobj)
+        screen.blit(countText, countTextRectobj)
 
-    if pies > 50:
-        if pies % 2 == 0:
-            screen.blit(warningText1, warningTextRectobj)
-        else:
-            screen.blit(warningText2, warningTextRectobj)
+        if pies > 35:
+            if pies % 3 == 0:
+                screen.blit(warningText5, warningTextRectobj)
+            elif pies % 3 == 1:
+                screen.blit(warningText3, warningTextRectobj)
+            else:
+                screen.blit(warningText4, warningTextRectobj)
+        elif pies > 25:
+            if pies % 2 == 0:
+                screen.blit(warningText1, warningTextRectobj)
+            else:
+                screen.blit(warningText2, warningTextRectobj)
 
-    screen.blit(pie.pygameObject, piePos)
-    charMid = centerpoint((mousex, mousey), charSize)
-    screen.blit(
-            pygame.transform.scale(char.pygameObject, (charSize)),
-            (mousex, mousey))
+        screen.blit(pie.pygameObject, piePos)
+        charMid = centerpoint((mousex, mousey), charSize)
+        screen.blit(
+                pygame.transform.scale(char.pygameObject, (charSize)),
+                (mousex, mousey))
+    else:
+        deathTextRectobj = warningText1.get_rect()
+        deathTextRectobj.topleft = centerpoint((0, 0), dimensions)
+        screen.blit(warningText3, deathTextRectobj)
 
     if distance(centerpoint((mousex, mousey), charSize), pie.getCenterpoint(piePos)) < 75:
         pies += 1
@@ -101,6 +117,7 @@ while True:
                 piePos = newPos(pie)
                 pies = 0
                 text = font.render("no pies!", 1, (200, 200, 200))
+                charSize = char.dimensions
                 
     pygame.display.update()
     fpsClock.tick(30)
