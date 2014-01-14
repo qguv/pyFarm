@@ -18,12 +18,14 @@ pygame.mouse.set_visible(isVisibleMouse)
 screen = pygame.display.set_mode(dimensions)
 background = pygame.Surface(dimensions)
 
-# Handy shortcuts
+# Color sugar
 black = pygame.Color(0, 0, 0)
 white = pygame.Color(255, 255, 255)
 lightGrey = pygame.Color(200, 200, 200)
+
+# Display sugar
 topLeft = Point(0, 0)
-bottomRight = dimensions #Total sugar
+bottomRight = dimensions
 midScreen = dimensions // 2
 
 # Position functions
@@ -37,7 +39,6 @@ def newPos(object):
         pos = randomPlace()
     return pos
 
-# Handy functions
 def buildBackground(tile, background, dimensions : Point):
     maxX, maxY = dimensions
     dx, dy = tile.dimensions

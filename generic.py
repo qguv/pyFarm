@@ -26,17 +26,6 @@ topLeft = Point(0, 0)
 bottomRight = dimensions #Total sugar
 midScreen = dimensions // 2
 
-# Position functions
-def randomPlace():
-    maxX, maxY = dimensions
-    return Point(randint(0, maxX), randint(0, maxY))
-
-def newPos(object):
-    pos = randomPlace()
-    while not object.isOnScreen(pos, dimensions):
-        pos = randomPlace()
-    return pos
-
 # Handy functions
 def buildBackground(tile, background, dimensions : Point):
     maxX, maxY = dimensions
