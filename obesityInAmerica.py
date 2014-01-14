@@ -140,9 +140,8 @@ while True:
         elif event.type == MOUSEMOTION:
             mousePos = Point(event.pos)
             charPos = mousePos - char.dimensions / 2
-            angleToPie = charPos.angle(piePos)
-            turn = Cardinal(char.selected, north=2) - directionOfAngle(degs=angleToPie)
-            char.set((char.selected + turn) % 4)
+            angleToPie = Angle(charPos.angle(piePos))
+            char.set(angleToPie.cardinal())
         elif event.type == MOUSEBUTTONUP:
             if event.button in ( 2, 3 ):
                 fakePie = True

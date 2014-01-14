@@ -71,42 +71,25 @@ class PackagedSprite(Sprite):
         self.update()
 
 
-class Cardinal(int):
+class Angle(float):
 
-    directions = ['north', 'east', 'south', 'west']
-    directionAbbreviations = ['n', 'e', 's', 'w']
+    def __new__(self, degrees):
+        return float.__new__(Angle, degrees % 360)
 
-    def __new__(self, direction, north=0):
-        if direction in (0, 1, 2, 3):
-            return int.__new__(Cardinal, (direction - north) % 4)
-        else:
-            try:
-                direction = direction.lower()
-            except AttributeError:
-                raise TypeError('directional input must be an int or a str')
-            if direction in directions:
-                return int.__new__(Cardinal, directions.index(direction))
-            elif direction in directionAbbreviations:
-                return int.__new__(Cardinal, directionsAbbreviations.index(direction))
-            else:
-                raise NameError('not a direction')
-
-    def __str__(self, abbreviate=False):
-        if abbreviate:
-            return self.directionAbbreviations[self].capitalize()
-        else:
-            return self.directions[self].capitalize()
-
-    def __repr__(self):
-        return "<Cardinal object holding direction {} at 0x{:0x}>".format(
-                self.directions[self].capitalize(),
-                id(self))
-
-    def __add__(self, other):
-        return Cardinal((int(self) + int(other)) % 4)
+    def __str__(self):
+        return "Angle: {} degrees ({})".format(str(self), self.cardinal())
 
     def __neg__(self):
-        return Cardinal((self + 2) % 4)
+        return Angle((self + 180) % 360)
+
+    def cardinal(self):
+        '''determine cardinal direction of angle'''
+        return int((self + 45) % 360 // 90)
+
+    def cardinalName(self):
+        directions = ["east", "north", "west", "south"]
+        return directions[self.cardinal()]
+
 
 class Point(tuple):
 

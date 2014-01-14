@@ -67,9 +67,8 @@ while True:
             sys.exit()
         elif event.type == MOUSEMOTION:
             mousePos = Point(event.pos)
-            angleToCenter = mousePos.angle(dimensions / 2)
-            turn = Cardinal(char.selected, north=2) - directionOfAngle(degs=angleToCenter)
-            char.set((char.selected + turn) % 4)
+            angleToCenter = Angle(mousePos.angle(dimensions / 2))
+            char.set(angleToCenter.cardinal())
         elif event.type == MOUSEBUTTONUP:
             if event.button in ( 2, 3 ):
                 pass
