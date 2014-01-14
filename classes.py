@@ -41,12 +41,12 @@ class Sprite():
     def getCenterpoint(self, position):
         x = self.dimensions[0] / 2 + position[0]
         y = self.dimensions[1] / 2 + position[1]
-        return (x, y)
+        return Point(x, y)
 
     def getEndpoint(self, position):
         x = self.dimensions[0] + position[0]
         y = self.dimensions[1] + position[1]
-        return (x, y)
+        return Point(x, y)
 
     def isOnScreen(self, position, dimensions):
         maxX, maxY = dimensions
