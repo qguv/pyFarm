@@ -10,13 +10,12 @@ from classes import *
 from formulae import *
 
 # Environment variables
-isVisibleMouse = False
 dimensions = Point(1024, 768)
 
 # Setting environment
 pygame.init()
 fpsClock = pygame.time.Clock()
-pygame.mouse.set_visible(isVisibleMouse)
+pygame.mouse.set_visible(True)
 screen = pygame.display.set_mode(dimensions)
 background = pygame.Surface(dimensions)
 
@@ -56,10 +55,21 @@ flora1 = PackagedSprite("flora", 99)
 flora2 = PackagedSprite("flora", 99)
 floorTile = PackagedSprite('floor', 1)
 
+# Set flora sprites to random plants
+plants = random.sample(range(len(flora0.paths)), 3)
+flora0.set(plants[0])
+flora1.set(plants[1])
+flora2.set(plants[2])
+
 # Positions and Counters
 pies = 0
+keylength = 0
+keydown = False
+keydirection = None
 choice = None
 repick = True
+repick_timeout = pygame.time.Clock()
+repick_timeout.tick()
 mousePos = Point(1, 1)
 char_pos = mousePos - char.dimensions / 2
 floraX = midScreen[0] - flora0.dimensions[0] / 2
@@ -88,13 +98,15 @@ countTextRectobj.topleft = (10, 20)
 
 buildBackground(floorTile, background, dimensions)
 
+flora0_center = flora0.getCenterpoint(flora0_pos)
+flora1_center = flora0.getCenterpoint(flora1_pos)
+flora2_center = flora0.getCenterpoint(flora2_pos)
+
 screen.fill(black)
 
 while True:
+    # Calculate position data
     char_center = char.getCenterpoint(char_pos)
-    flora0_center = flora0.getCenterpoint(flora0_pos)
-    flora1_center = flora0.getCenterpoint(flora1_pos)
-    flora2_center = flora0.getCenterpoint(flora2_pos)
 
     if char_center.distance(flora0_center) < 50:
         choice = 0
@@ -106,34 +118,49 @@ while True:
         choice = 2
         repick = True
 
-    if repick:
-        plants = random.sample(range(len(flora0.paths)), 3)
-        flora0.set(plants[0])
-        flora1.set(plants[1])
-        flora2.set(plants[2])
-        repick = False
-
+    # Draw objects to screen
     screen.blit(background, topLeft)
     #screen.blit(countText, countTextRectobj)
-
     screen.blit(flora0.pygameObject, flora0_pos)
     screen.blit(flora1.pygameObject, flora1_pos)
     screen.blit(flora2.pygameObject, flora2_pos)
-
     screen.blit(char.pygameObject, char_pos)
 
+    # Handle UI events
     for event in pygame.event.get():
-        if event.type == QUIT:
+        if event.type == QUIT or event.type == KEYDOWN and event.key == K_q:
             pygame.quit()
             sys.exit()
-        elif event.type == MOUSEMOTION:
-            mousePos = Point(event.pos)
-            char_pos = mousePos - char.dimensions / 2
-            angleToCenter = Angle(char_center.angle(flora1_center))
-            if angleToCenter.cardinal() != char.selected:
-                char.set(angleToCenter.cardinal())
+        elif event.type == KEYDOWN:
+            keydown = True
+            keydirection = event.key
+        elif event.type == KEYUP and keydirection == event.key:
+            keydown = False
         elif event.type == MOUSEBUTTONUP:
             repick = True
+
+    # Handle status events
+    if keydown:
+        if keydirection == K_UP:
+            char_pos += (0, -20)
+        elif keydirection == K_DOWN:
+            char_pos += (0, 20)
+        elif keydirection == K_LEFT:
+            char_pos += (-20, 0)
+        elif keydirection == K_RIGHT:
+            char_pos += (20, 0)
+        angleToCenter = Angle(char_center.angle(flora1_center))
+        if angleToCenter.cardinal() != char.selected:
+            char.set(angleToCenter.cardinal())
                 
+    if repick: 
+        repick_timeout.tick()
+        repick = False
+        if repick_timeout.get_time() > 100:
+            plants = random.sample(range(len(flora0.paths)), 3)
+            flora0.set(plants[0])
+            flora1.set(plants[1])
+            flora2.set(plants[2])
+
     pygame.display.update()
     fpsClock.tick(30)
